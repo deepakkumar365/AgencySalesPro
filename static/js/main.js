@@ -98,9 +98,10 @@ function setupRealTimeValidation() {
     const passwordConfirmInputs = document.querySelectorAll('input[name="confirm_password"]');
     passwordConfirmInputs.forEach(function(input) {
         input.addEventListener('input', function() {
-            const password = document.querySelector('input[name="password"]');
-            if (password) {
-                validatePasswordMatch(password, input);
+            const passwordFieldSelector = input.dataset.passwordField || 'input[name="password"]';
+            const passwordInput = document.querySelector(passwordFieldSelector);
+            if (passwordInput) {
+                validatePasswordMatch(passwordInput, input);
             }
         });
     });

@@ -33,10 +33,17 @@ def dashboard():
     
     # Get monthly order trends (last 6 months)
     six_months_ago = datetime.utcnow() - timedelta(days=180)
+    
+    # Use strftime for SQLite and date_trunc for PostgreSQL for portability
+    if db.engine.dialect.name == 'sqlite':
+        month_func = func.strftime('%Y-%m-01', Order.created_at)
+    else:  # Assumes PostgreSQL or other DBs that support date_trunc
+        month_func = func.date_trunc('month', Order.created_at)
+        
     monthly_orders = db.session.query(
-        func.date_trunc('month', Order.created_at).label('month'),
+        month_func.label('month'),
         func.count(Order.id).label('count')
-    ).filter(Order.created_at >= six_months_ago).group_by(func.date_trunc('month', Order.created_at)).all()
+    ).filter(Order.created_at >= six_months_ago).group_by(month_func).order_by(month_func).all()
     
     # Get top agencies by orders
     top_agencies = db.session.query(
