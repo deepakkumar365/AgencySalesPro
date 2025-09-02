@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: agency-sales-pro
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn --config gunicorn_config.py main:app"
+    envVars:
+      - key: PORT
+        value: "10000"
+        scope: RUN_TIME
+      - key: DATABASE_URL
+        value: "sqlite:///instance/agency_sales.db"
+        scope: RUN_TIME
