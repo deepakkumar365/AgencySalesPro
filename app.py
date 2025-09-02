@@ -6,9 +6,6 @@ from flask_jwt_extended import JWTManager
 from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import timedelta
-from dotenv import load_dotenv
-
-load_dotenv() # Load environment variables from .env file
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -68,80 +65,83 @@ def create_app():
             return redirect(url_for('auth.login'))
         return render_template('index.html')
     
+    with app.app_context():
+        import models
+        db.create_all()
+        
+        # Create default super admin if not exists
+        from models import User, Agency
+        from werkzeug.security import generate_password_hash
+        
+        if not User.query.filter_by(role='super_admin').first():
+            admin = User(
+                username='admin',
+                email='admin@system.com',
+                password_hash=generate_password_hash('admin123'),
+                role='super_admin',
+                is_active=True
+            )
+            db.session.add(admin)
+            db.session.commit()
+            logging.info("Default super admin created: admin/admin123")
+        
+        # Create sample agency and users for testing
+        if not Agency.query.first():
+            # Create sample agency
+            sample_agency = Agency(
+                name='Sample Marketing Agency',
+                code='SMA001',
+                address='123 Business Street, City, State 12345',
+                phone='(555) 123-4567',
+                email='info@sampleagency.com',
+                is_active=True
+            )
+            db.session.add(sample_agency)
+            db.session.commit()
+            
+            # Create agency admin
+            agency_admin = User(
+                username='agency_admin',
+                email='admin@sampleagency.com',
+                password_hash=generate_password_hash('admin123'),
+                first_name='John',
+                last_name='Manager',
+                role='agency_admin',
+                agency_id=sample_agency.id,
+                is_active=True
+            )
+            
+            # Create agency staff
+            agency_staff = User(
+                username='agency_staff',
+                email='staff@sampleagency.com',
+                password_hash=generate_password_hash('staff123'),
+                first_name='Jane',
+                last_name='Staff',
+                role='staff',
+                agency_id=sample_agency.id,
+                is_active=True
+            )
+            
+            # Create salesperson
+            salesperson = User(
+                username='salesperson',
+                email='sales@sampleagency.com',
+                password_hash=generate_password_hash('sales123'),
+                first_name='Mike',
+                last_name='Sales',
+                role='salesperson',
+                agency_id=sample_agency.id,
+                is_active=True
+            )
+            
+            db.session.add_all([agency_admin, agency_staff, salesperson])
+            db.session.commit()
+            logging.info("Sample agency and users created:")
+            logging.info("  Agency Admin: agency_admin/admin123")
+            logging.info("  Staff: agency_staff/staff123")
+            logging.info("  Salesperson: salesperson/sales123")
+    
     return app
 
 app = create_app()
-
-@app.cli.command("init-db")
-def init_db_command():
-    """Creates the database tables and seeds initial data."""
-    import models
-    from models import User, Agency
-    from werkzeug.security import generate_password_hash
-
-    db.create_all()
-    
-    # Create default super admin if not exists
-    if not User.query.filter_by(role='super_admin').first():
-        admin = User(
-            username='admin',
-            email='admin@system.com',
-            password_hash=generate_password_hash('admin123'),
-            role='super_admin',
-            is_active=True
-        )
-        db.session.add(admin)
-        db.session.commit()
-        print("Default super admin created: admin/admin123")
-    
-    # Create sample agency and users for testing
-    if not Agency.query.first():
-        sample_agency = Agency(
-            name='Sample Marketing Agency',
-            code='SMA001',
-            address='123 Business Street, City, State 12345',
-            phone='(555) 123-4567',
-            email='info@sampleagency.com',
-            is_active=True
-        )
-        db.session.add(sample_agency)
-        db.session.commit()
-        
-        agency_admin = User(
-            username='agency_admin',
-            email='admin@sampleagency.com',
-            password_hash=generate_password_hash('admin123'),
-            first_name='John',
-            last_name='Manager',
-            role='agency_admin',
-            agency_id=sample_agency.id,
-            is_active=True
-        )
-        
-        agency_staff = User(
-            username='agency_staff',
-            email='staff@sampleagency.com',
-            password_hash=generate_password_hash('staff123'),
-            first_name='Jane',
-            last_name='Staff',
-            role='staff',
-            agency_id=sample_agency.id,
-            is_active=True
-        )
-        
-        salesperson = User(
-            username='salesperson',
-            email='sales@sampleagency.com',
-            password_hash=generate_password_hash('sales123'),
-            first_name='Mike',
-            last_name='Sales',
-            role='salesperson',
-            agency_id=sample_agency.id,
-            is_active=True
-        )
-        
-        db.session.add_all([agency_admin, agency_staff, salesperson])
-        db.session.commit()
-        print("Sample agency and users created.")
-
-    print("Database initialized.")

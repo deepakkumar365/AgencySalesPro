@@ -9,9 +9,26 @@
             <h1>
                 <i class="fas fa-user-friends me-2"></i>Customers
             </h1>
-            <a href="{{ url_for('customer.create_customer') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Add Customer
-            </a>
+            <div class="btn-group">
+                <a href="{{ url_for('customer.create_customer') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Customer
+                </a>
+                <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                    <span class="visually-hidden">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="{{ url_for('customer.import_customers') }}">
+                        <i class="fas fa-upload me-2"></i>Import from CSV
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('customer.export_customers') }}">
+                        <i class="fas fa-download me-2"></i>Export to CSV
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ url_for('customer.download_customer_template') }}">
+                        <i class="fas fa-file-csv me-2"></i>Download Template
+                    </a></li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
@@ -100,11 +117,11 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Contact</th>
+                                <th class="d-none-mobile">Contact</th>
                                 <th>Location</th>
-                                <th>Agency</th>
+                                <th class="d-none-mobile">Agency</th>
                                 <th>Status</th>
-                                <th>Created</th>
+                                <th class="d-none-mobile">Created</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -117,7 +134,7 @@
                                     <br><small class="text-muted">{{ customer.address }}</small>
                                     {% endif %}
                                 </td>
-                                <td>
+                                <td class="d-none-mobile">
                                     {% if customer.email %}
                                     <div><i class="fas fa-envelope me-1"></i>{{ customer.email }}</div>
                                     {% endif %}
@@ -126,7 +143,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ customer.location.name }}</td>
-                                <td>{{ customer.location.agency.name }}</td>
+                                <td class="d-none-mobile">{{ customer.location.agency.name }}</td>
                                 <td>
                                     {% if customer.is_active %}
                                     <span class="badge bg-success">Active</span>
@@ -134,7 +151,7 @@
                                     <span class="badge bg-secondary">Inactive</span>
                                     {% endif %}
                                 </td>
-                                <td>{{ customer.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td class="d-none-mobile">{{ customer.created_at.strftime('%Y-%m-%d') }}</td>
                                 <td>
                                     <div class="btn-group btn-group-sm">
                                         <a href="{{ url_for('customer.edit_customer', customer_id=customer.id) }}" 
