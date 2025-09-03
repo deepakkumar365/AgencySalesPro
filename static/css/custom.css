@@ -94,6 +94,19 @@ body {
   padding: 0.75rem;
 }
 
+.card-footer {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  background-color: var(--accent-light);
+  border-top: 1px solid var(--bs-border-color);
+  color: var(--primary-dark);
+}
+
+.card-footer small {
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
 /* Tables */
 .table {
   font-size: 0.8rem;
