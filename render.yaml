@@ -2,6 +2,6 @@ services:
   - type: web
     name: my-fastapi-service
     env: python
-    buildCommand: pip install -r render requirements.txt
+    buildCommand: pip install -r render_requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
     runtime: python-3.12.6
